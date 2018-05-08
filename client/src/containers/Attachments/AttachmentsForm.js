@@ -6,9 +6,7 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Card, { CardContent } from 'material-ui/Card';
 import { withStyles } from 'material-ui/styles';
-// Import react-drop-to-upload component
-// https://www.npmjs.com/package/react-drop-to-upload
-// import DropToUpload from 'react-drop-to-upload';
+
 
 const styles = {
   textField: {
@@ -43,8 +41,29 @@ const styles = {
 };
 
 class AttachmentsForm extends React.Component {
+  constructor(props) {
+    super(props);
+    state = {
+      value: '',
+      // uploadURL: '',
+    }
+    this.handleUpload = this.handleUpload.bind(this);
+  }
+
   render() {
-    const { classes } = this.props;
+    handleDoctorMenuOption = event => {
+    this.setState({ [event.target.name]: event.target.value });
+    event.preventDefault();
+    console.log(event.target.value);
+    this.props.handleAppointmentDoctorChange(event);
+    }
+
+  render() {
+    const { doctors, lab-date, lab-subject} = this.props;
+    console.log(doctors);
+    console.log(lab-date);
+    console.log(lab-subject);
+
 
     return (
       <div>
@@ -54,39 +73,22 @@ class AttachmentsForm extends React.Component {
               Add attachment
             </Typography>
             <form noValidate autoComplete="off">
-              {/* <FormControl className={classes.formControl} fullWidth>
-                <InputLabel htmlFor="select-doctor-dropdown">Select a doctor</InputLabel>
-                <Select
-                  value={this.props.labDoctor}
-                  onChange={this.props.handleLabDoctorChange}
-                  inputProps={{
-                    doctor: '',
-                    id: 'select-doctor',
-                  }}
-                >
-                  <MenuItem value="" />
-                  <MenuItem value="Pain">Dr. Pain</MenuItem>
-                  <MenuItem value="Joins">Dr. Jones</MenuItem>
-                  <MenuItem value="Johnson">Dr. Johnson</MenuItem>
-                  <MenuItem value="Smith">Dr. Smith</MenuItem>
-                  <MenuItem value="Phil">Dr. Phil</MenuItem>
-                  <MenuItem value="J"></MenuItem>Dr. J</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
-                </Select>
-              </FormControl> */}
-
               <TextField
-                id="select-doctor-dropdown"
-                label="Select a doctor"
-                type="text"
-                className={classes.textField}
+                id='doctor'
+                select
+                label='Select a doctor'
                 InputLabelProps={{
-                    shrink: true,
+                  shrink: true,
                 }}
-                fullWidth
-                value={this.props.attachmentDoctor}
-                onChange={this.props.handleAttachmentDoctorChange}
-              />
+                className={classes.textField}
+                value={this.state.value}
+                onChange={this.handleDoctorMenuOption}
+                SelectProps={{ name: 'value'}}
+                margin="normal">
+                  {doctors.map(doctor => {
+                    return <MenuItem value={doctor.lastname}>Dr. {doctor.lastname}</MenuItem>;
+                  })}
+                </TextField>
 
               <TextField
                 id="lab-date"
@@ -115,14 +117,27 @@ class AttachmentsForm extends React.Component {
                 onChange={this.props.handleAttachmentSubjectChange}
               />
 
-              {/* <DropToUpload
-                onDrop={this.handleDrop}
-                className={classes.dragndrop}
-              >
-              Drop file here to upload
-              </DropToUpload> */}
+              <Button size="large" color="primary" variant="raised" className={classes.button} onClick={this.props.handleConfirmForm}>
+                Confirm Information
+              </Button>
 
-              <Button size="large" color="primary" variant="raised" className={classes.button} onClick={this.props.handleFormSubmit}>
+              <Uploadform onSubmit={this.handleUpload}>
+                <div>
+                  <input ref={(ref) => { this.uploadInput = ref; }} type="file-input" />
+                </div>
+                <div>
+                // future either uses uuid (webpack problems last try) or this will be assigned the Mongo ID
+                  <input ref={(ref) => { this.fileName = ref; }} type="text" placeholder="Enter file key name" />
+                </div>
+                <br />
+                <div>
+                  <button>Upload</button>
+                </div>
+                // may not want to render preview because we have to "destroy" it later so it isn't saved in cookies/may result privacy leaks... need more info
+                // <img src={this.state.uploadURL} alt="img" />
+              </form>
+
+              <Button size="large" color="primary" variant="raised" className={classes.button} onClick={this.props.handleUploadSubmit}>
                 Add attachment
               </Button>
             </form>
